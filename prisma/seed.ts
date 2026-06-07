@@ -1,33 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
-function getPrismaInstance(): PrismaClient {
-  const url = process.env.DATABASE_URL;
-  if (!url) {
-    throw new Error("DATABASE_URL environment variable is missing");
-  }
-
-  const regex = /^mysql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)$/;
-  const match = url.match(regex);
-  if (!match) {
-    throw new Error("Invalid MySQL connection URL format in DATABASE_URL");
-  }
-
-  const [, user, password, host, port, database] = match;
-
-  const adapter = new PrismaMariaDb({
-    host,
-    port: parseInt(port),
-    user,
-    password,
-    database,
-    connectionLimit: 5,
-  });
-
-  return new PrismaClient({ adapter });
-}
-
-const prisma = getPrismaInstance();
+const prisma = new PrismaClient();
 
 async function main() {
   console.log("Starting database seeding...");

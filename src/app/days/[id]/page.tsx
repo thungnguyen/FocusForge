@@ -226,11 +226,10 @@ export default function DayDetail({ params }: PageProps) {
               setDayCompleted(nextVal);
               await persistDayData({ completed: nextVal });
             }}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold border flex items-center gap-2 shadow-sm transition-all cursor-pointer ${
-              dayCompleted
+            className={`px-4 py-2 rounded-xl text-xs font-semibold border flex items-center gap-2 shadow-sm transition-all cursor-pointer ${dayCompleted
                 ? "bg-emerald-900 border-emerald-900 text-emerald-50"
                 : "bg-white border-stone-200 text-stone-700 hover:border-stone-400"
-            }`}
+              }`}
           >
             <CheckCircle size={15} />
             <span>{dayCompleted ? "Completed" : "Mark Day Complete"}</span>
@@ -243,8 +242,8 @@ export default function DayDetail({ params }: PageProps) {
         {/* Left 2 columns: Task logs & Reflections */}
         <div className="lg:col-span-2 space-y-6">
           {/* Focus Area */}
-          <SectionCard 
-            title={focusAreaTitle} 
+          <SectionCard
+            title={focusAreaTitle}
             onTitleChange={setFocusAreaTitle}
             subtitle="Xác định lĩnh vực hoặc chủ đề kỹ thuật bạn cam kết tập trung cải thiện hôm nay. (Nhấp đúp tiêu đề để sửa)"
           >
@@ -264,8 +263,8 @@ export default function DayDetail({ params }: PageProps) {
           </SectionCard>
 
           {/* Most Important Task */}
-          <SectionCard 
-            title={mitTitle} 
+          <SectionCard
+            title={mitTitle}
             onTitleChange={setMitTitle}
             subtitle="Nhiệm vụ cốt lõi duy nhất bắt buộc phải hoàn thành trong ngày để có một ngày thành công. (Nhấp đúp tiêu đề để sửa)"
           >
@@ -298,11 +297,10 @@ export default function DayDetail({ params }: PageProps) {
                 >
                   <button
                     onClick={() => togglePriority(task.id)}
-                    className={`w-4.5 h-4.5 rounded border flex items-center justify-center shrink-0 cursor-pointer ${
-                      task.completed
+                    className={`w-4.5 h-4.5 rounded border flex items-center justify-center shrink-0 cursor-pointer ${task.completed
                         ? "bg-stone-900 border-stone-900 text-white"
                         : "bg-white border-stone-300"
-                    }`}
+                      }`}
                   >
                     {task.completed && <span className="text-[10px]">✓</span>}
                   </button>
@@ -315,9 +313,8 @@ export default function DayDetail({ params }: PageProps) {
                       setPriorities(updated);
                     }}
                     onBlur={() => persistDayData()}
-                    className={`w-full bg-transparent border-none text-base focus:outline-none ${
-                      task.completed ? "text-stone-400 line-through font-handwriting" : "text-stone-700 font-handwriting"
-                    }`}
+                    className={`w-full bg-transparent border-none text-base focus:outline-none ${task.completed ? "text-stone-400 line-through font-handwriting" : "text-stone-700 font-handwriting"
+                      }`}
                   />
                 </div>
               ))}
@@ -338,11 +335,10 @@ export default function DayDetail({ params }: PageProps) {
                 >
                   <button
                     onClick={() => toggleSecondary(task.id)}
-                    className={`w-4.5 h-4.5 rounded border flex items-center justify-center shrink-0 cursor-pointer ${
-                      task.completed
+                    className={`w-4.5 h-4.5 rounded border flex items-center justify-center shrink-0 cursor-pointer ${task.completed
                         ? "bg-stone-900 border-stone-900 text-white"
                         : "bg-white border-stone-300"
-                    }`}
+                      }`}
                   >
                     {task.completed && <span className="text-[10px]">✓</span>}
                   </button>
@@ -355,9 +351,8 @@ export default function DayDetail({ params }: PageProps) {
                       setSecondaries(updated);
                     }}
                     onBlur={() => persistDayData()}
-                    className={`w-full bg-transparent border-none text-base focus:outline-none ${
-                      task.completed ? "text-stone-400 line-through font-handwriting" : "text-stone-700 font-handwriting"
-                    }`}
+                    className={`w-full bg-transparent border-none text-base focus:outline-none ${task.completed ? "text-stone-400 line-through font-handwriting" : "text-stone-700 font-handwriting"
+                      }`}
                   />
                 </div>
               ))}
@@ -393,7 +388,7 @@ export default function DayDetail({ params }: PageProps) {
               <div className="relative w-[300px] h-[300px] select-none">
                 <svg width="300" height="300" className="transform -rotate-90">
                   <circle cx={cx} cy={cy} r={R} fill="none" stroke="#e7e5e4" strokeWidth="1" />
-                  
+
                   {timeBlocks.map((block) => (
                     <path
                       key={block.hour}
@@ -443,11 +438,10 @@ export default function DayDetail({ params }: PageProps) {
                       key={btn.type}
                       type="button"
                       onClick={() => setActiveCategory(btn.type)}
-                      className={`py-2 px-1 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
-                        activeCategory === btn.type
+                      className={`py-2 px-1 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${activeCategory === btn.type
                           ? btn.color + " shadow-sm ring-2 ring-stone-900/10"
                           : "bg-white border-stone-200 text-stone-600 hover:border-stone-300"
-                      }`}
+                        }`}
                     >
                       <btn.icon size={13} />
                       <span className="text-[9px]">{btn.type === "Sleep" ? "Ngủ" : btn.type === "Work" ? "Code/Làm" : btn.type === "Health" ? "Sức khỏe" : "Giải trí"}</span>
@@ -494,8 +488,8 @@ export default function DayDetail({ params }: PageProps) {
           </SectionCard>
 
           {/* Mood & Energy */}
-          <SectionCard 
-            title={moodTitle} 
+          <SectionCard
+            title={moodTitle}
             onTitleChange={setMoodTitle}
             subtitle="Đánh giá trạng thái năng lượng thể chất và tâm lý của bạn trong ngày."
           >
@@ -514,11 +508,10 @@ export default function DayDetail({ params }: PageProps) {
                           setMood(m);
                           await persistDayData({ mood: m });
                         }}
-                        className={`py-2 px-1.5 rounded-xl border text-[11px] font-semibold cursor-pointer transition-all ${
-                          mood === m
+                        className={`py-2 px-1.5 rounded-xl border text-[11px] font-semibold cursor-pointer transition-all ${mood === m
                             ? "bg-stone-900 border-stone-900 text-stone-50 shadow-sm"
                             : "bg-white border-stone-200 text-stone-600 hover:border-stone-300"
-                        }`}
+                          }`}
                       >
                         {m}
                       </button>
@@ -540,11 +533,10 @@ export default function DayDetail({ params }: PageProps) {
                         setEnergy(e);
                         await persistDayData({ energy: e });
                       }}
-                      className={`py-2 px-1.5 rounded-xl border text-xs font-bold cursor-pointer transition-all ${
-                        energy === e
+                      className={`py-2 px-1.5 rounded-xl border text-xs font-bold cursor-pointer transition-all ${energy === e
                           ? "bg-stone-900 border-stone-900 text-stone-50 shadow-sm"
                           : "bg-white border-stone-200 text-stone-600 hover:border-stone-300"
-                      }`}
+                        }`}
                     >
                       {e === "High" ? "Cao" : e === "Medium" ? "Vừa" : "Thấp"}
                     </button>
