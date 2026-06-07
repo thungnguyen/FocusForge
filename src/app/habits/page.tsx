@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Activity, ClipboardList, Info, HelpCircle, Save, Plus } from "lucide-react";
 import SectionCard from "@/components/ui/SectionCard";
-import { getDayMockData } from "@/lib/mock-data";
+import { getHabitLogs, updateHabitLog } from "@/app/actions";
 
 interface HabitRow {
   dayNumber: number;
@@ -22,25 +22,25 @@ interface HabitRow {
 export default function Habits() {
   const [pageTitle, setPageTitle] = useState("Habit Tracker");
   const [gridTitle, setGridTitle] = useState("Weekly Metric Tracker Grid");
-  // Load initial sample logs for Days 1 to 7
-  const initialRows: HabitRow[] = Array.from({ length: 7 }, (_, idx) => {
-    const dayData = getDayMockData(idx + 1);
-    return {
-      dayNumber: idx + 1,
-      screenTime: dayData.habits.screenTime || 2.0,
-      weight: dayData.habits.weight || 78.5,
-      sleepTime: dayData.habits.sleepTime || 7.5,
-      wakeUpTime: dayData.habits.wakeUpTime || "06:00",
-      waterIntake: dayData.habits.waterIntake || 3.0,
-      workout: dayData.habits.workout,
-      reading: dayData.habits.reading,
-      english: dayData.habits.english,
-      coding: dayData.habits.coding,
-      noSocialMedia: dayData.habits.noSocialMedia,
-    };
-  });
+  const [rows, setRows] = useState<HabitRow[]>([]);
 
-  const [rows, setRows] = useState<HabitRow[]>(initialRows);
+  useEffect(() => {
+    async function loadData() {
+      const dbLogs = await getHabitLogs();
+      if (dbLogs && dbLogs.length > 0) {
+        setRows(dbLogs);
+      }
+    }
+    loadData();
+  }, []);
+
+  const persistRow = async (dayNum: number, updatedFields: Partial<HabitRow> = {}) => {
+    const row = rows.find((r) => r.dayNumber === dayNum);
+    if (row) {
+      const finalData = { ...row, ...updatedFields };
+      await updateHabitLog(dayNum, finalData);
+    }
+  };
 
   const handleNumericChange = (dayNum: number, field: keyof HabitRow, val: string) => {
     const parsed = parseFloat(val) || 0;
@@ -55,43 +55,45 @@ export default function Habits() {
     );
   };
 
-  const handleToggle = (dayNum: number, field: keyof HabitRow) => {
+  const handleToggle = async (dayNum: number, field: keyof HabitRow) => {
+    let nextVal = false;
     setRows((prev) =>
-      prev.map((r) => (r.dayNumber === dayNum ? { ...r, [field]: !r[field] } : r))
+      prev.map((r) => {
+        if (r.dayNumber === dayNum) {
+          nextVal = !r[field];
+          return { ...r, [field]: nextVal };
+        }
+        return r;
+      })
     );
+    await persistRow(dayNum, { [field]: !rows.find(r => r.dayNumber === dayNum)?.[field] });
   };
 
   // Add a new day row to the spreadsheet
-  const addSpreadsheetRow = () => {
+  const addSpreadsheetRow = async () => {
     const nextDay = rows.length + 1;
     if (nextDay > 60) return;
-    setRows((prev) => [
-      ...prev,
-      {
-        dayNumber: nextDay,
-        screenTime: 2.0,
-        weight: prev[prev.length - 1]?.weight || 78.0,
-        sleepTime: 7.5,
-        wakeUpTime: "06:00",
-        waterIntake: 3.0,
-        workout: false,
-        reading: false,
-        english: false,
-        coding: false,
-        noSocialMedia: false,
-      },
-    ]);
+    const newRow: HabitRow = {
+      dayNumber: nextDay,
+      screenTime: 2.0,
+      weight: rows[rows.length - 1]?.weight || 78.0,
+      sleepTime: 7.5,
+      wakeUpTime: "06:00",
+      waterIntake: 3.0,
+      workout: false,
+      reading: false,
+      english: false,
+      coding: false,
+      noSocialMedia: false,
+    };
+    setRows((prev) => [...prev, newRow]);
+    await updateHabitLog(nextDay, newRow);
   };
 
   const getRowCompletionPercent = (row: HabitRow) => {
     let successChecks = 0;
-    let totalRules = 10;
+    let totalRules = 5;
 
-    if (row.screenTime > 0 && row.screenTime <= 2.0) successChecks++;
-    if (row.weight > 0) successChecks++;
-    if (row.sleepTime >= 7.5) successChecks++;
-    if (row.wakeUpTime !== "") successChecks++;
-    if (row.waterIntake >= 3.0) successChecks++;
     if (row.workout) successChecks++;
     if (row.reading) successChecks++;
     if (row.english) successChecks++;
@@ -173,6 +175,7 @@ export default function Habits() {
                           onChange={(e) =>
                             handleNumericChange(row.dayNumber, "screenTime", e.target.value)
                           }
+                          onBlur={() => persistRow(row.dayNumber)}
                           className="w-14 bg-stone-50/50 border border-stone-200 rounded text-center py-1 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-400 font-semibold"
                         />
                       </td>
@@ -186,6 +189,7 @@ export default function Habits() {
                           onChange={(e) =>
                             handleNumericChange(row.dayNumber, "weight", e.target.value)
                           }
+                          onBlur={() => persistRow(row.dayNumber)}
                           className="w-14 bg-stone-50/50 border border-stone-200 rounded text-center py-1 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-400 font-semibold"
                         />
                       </td>
@@ -199,6 +203,7 @@ export default function Habits() {
                           onChange={(e) =>
                             handleNumericChange(row.dayNumber, "sleepTime", e.target.value)
                           }
+                          onBlur={() => persistRow(row.dayNumber)}
                           className="w-14 bg-stone-50/50 border border-stone-200 rounded text-center py-1 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-400 font-semibold"
                         />
                       </td>
@@ -211,6 +216,7 @@ export default function Habits() {
                           onChange={(e) =>
                             handleTextChange(row.dayNumber, "wakeUpTime", e.target.value)
                           }
+                          onBlur={() => persistRow(row.dayNumber)}
                           className="w-20 bg-stone-50/50 border border-stone-200 rounded text-center py-1 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-400 font-semibold"
                         />
                       </td>
@@ -224,6 +230,7 @@ export default function Habits() {
                           onChange={(e) =>
                             handleNumericChange(row.dayNumber, "waterIntake", e.target.value)
                           }
+                          onBlur={() => persistRow(row.dayNumber)}
                           className="w-14 bg-stone-50/50 border border-stone-200 rounded text-center py-1 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-400 font-semibold"
                         />
                       </td>

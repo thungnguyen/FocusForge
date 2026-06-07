@@ -1,11 +1,11 @@
 import React from "react";
 import Link from "next/link";
 import { CheckCircle, Clock, Lock, Search } from "lucide-react";
-import { getDayMockData } from "@/lib/mock-data";
+import { getDays } from "@/app/actions";
 
-export default function Days() {
-  // Generate all 60 days of the cycle
-  const daysList = Array.from({ length: 60 }, (_, i) => getDayMockData(i + 1));
+export default async function Days() {
+  // Generate all 60 days of the cycle from database
+  const daysList = await getDays();
 
   return (
     <div className="space-y-6">

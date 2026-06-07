@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, use } from "react";
+import React, { useState, useEffect, use } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -16,7 +16,7 @@ import {
   Heart
 } from "lucide-react";
 import SectionCard from "@/components/ui/SectionCard";
-import { getDayMockData } from "@/lib/mock-data";
+import { getDayDetail, updateDayDetail } from "@/app/actions";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -33,7 +33,6 @@ interface TimeBlock {
 export default function DayDetail({ params }: PageProps) {
   const { id } = use(params);
   const dayId = parseInt(id) || 1;
-  const initialDayData = getDayMockData(dayId);
 
   // Editable card titles
   const [focusAreaTitle, setFocusAreaTitle] = useState("Focus Area");
@@ -45,14 +44,16 @@ export default function DayDetail({ params }: PageProps) {
   const [moodTitle, setMoodTitle] = useState("Mood & Energy");
 
   // Core day values state
-  const [focusArea, setFocusArea] = useState(initialDayData.focusArea);
-  const [mit, setMit] = useState(initialDayData.mit);
-  const [priorities, setPriorities] = useState(initialDayData.priorities);
-  const [secondaries, setSecondaries] = useState(initialDayData.secondaries);
-  const [mood, setMood] = useState(initialDayData.mood);
-  const [energy, setEnergy] = useState<"High" | "Medium" | "Low">(initialDayData.energy);
-  const [reflection, setReflection] = useState(initialDayData.kaizenReflection);
-  const [dayCompleted, setDayCompleted] = useState(initialDayData.completed);
+  const [date, setDate] = useState("");
+  const [weekNumber, setWeekNumber] = useState(1);
+  const [focusArea, setFocusArea] = useState("");
+  const [mit, setMit] = useState("");
+  const [priorities, setPriorities] = useState<any[]>([]);
+  const [secondaries, setSecondaries] = useState<any[]>([]);
+  const [mood, setMood] = useState("");
+  const [energy, setEnergy] = useState<"High" | "Medium" | "Low">("Medium");
+  const [reflection, setReflection] = useState("");
+  const [dayCompleted, setDayCompleted] = useState(false);
 
   // Time blocks (24 hours setup)
   const defaultBlocks: TimeBlock[] = Array.from({ length: 24 }, (_, i) => {
@@ -90,16 +91,54 @@ export default function DayDetail({ params }: PageProps) {
   const [activeCategory, setActiveCategory] = useState<TimeBlockCategory>("Work");
   const [tempDesc, setTempDesc] = useState("");
 
-  const togglePriority = (id: string) => {
-    setPriorities((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
-    );
+  useEffect(() => {
+    async function loadData() {
+      const dbDay = await getDayDetail(dayId);
+      if (dbDay) {
+        setDate(dbDay.date);
+        setWeekNumber(dbDay.weekNumber);
+        setFocusArea(dbDay.focusArea);
+        setMit(dbDay.mit);
+        setPriorities(dbDay.priorities);
+        setSecondaries(dbDay.secondaries);
+        setMood(dbDay.mood);
+        setEnergy(dbDay.energy as any);
+        setReflection(dbDay.kaizenReflection);
+        setDayCompleted(dbDay.completed);
+        if (dbDay.timeBlocks && dbDay.timeBlocks.length > 0) {
+          setTimeBlocks(dbDay.timeBlocks);
+        }
+      }
+    }
+    loadData();
+  }, [dayId]);
+
+  const persistDayData = async (updatedFields: any = {}) => {
+    const finalData = {
+      mit: mit,
+      focusArea: focusArea,
+      priorities: priorities,
+      secondaries: secondaries,
+      mood: mood,
+      energy: energy,
+      kaizenReflection: reflection,
+      completed: dayCompleted,
+      timeBlocks: timeBlocks,
+      ...updatedFields
+    };
+    await updateDayDetail(dayId, finalData);
   };
 
-  const toggleSecondary = (id: string) => {
-    setSecondaries((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
-    );
+  const togglePriority = async (id: string) => {
+    const nextPriorities = priorities.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t));
+    setPriorities(nextPriorities);
+    await persistDayData({ priorities: nextPriorities });
+  };
+
+  const toggleSecondary = async (id: string) => {
+    const nextSecondaries = secondaries.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t));
+    setSecondaries(nextSecondaries);
+    await persistDayData({ secondaries: nextSecondaries });
   };
 
   // SVG Calculations for the 24-sector Kaizen Wheel
@@ -143,16 +182,16 @@ export default function DayDetail({ params }: PageProps) {
     setActiveCategory(timeBlocks[hour].category);
   };
 
-  const saveBlockDetails = () => {
+  const saveBlockDetails = async () => {
     if (selectedHour === null) return;
-    setTimeBlocks((prev) =>
-      prev.map((b) =>
-        b.hour === selectedHour
-          ? { ...b, category: activeCategory, description: tempDesc }
-          : b
-      )
+    const nextBlocks = timeBlocks.map((b) =>
+      b.hour === selectedHour
+        ? { ...b, category: activeCategory, description: tempDesc }
+        : b
     );
+    setTimeBlocks(nextBlocks);
     setSelectedHour(null);
+    await persistDayData({ timeBlocks: nextBlocks });
   };
 
   return (
@@ -172,17 +211,21 @@ export default function DayDetail({ params }: PageProps) {
                 Day {dayId}
               </h1>
               <span className="text-[10px] text-stone-400 font-bold uppercase bg-stone-100 px-2 py-0.5 rounded border">
-                Week {initialDayData.weekNumber}
+                Week {weekNumber}
               </span>
             </div>
-            <p className="text-xs text-stone-400 mt-0.5">Thời gian thực tế: {initialDayData.date}</p>
+            <p className="text-xs text-stone-400 mt-0.5">Thời gian thực tế: {date}</p>
           </div>
         </div>
 
         {/* Status complete checkbox */}
         <div className="flex items-center gap-2 font-sans">
           <button
-            onClick={() => setDayCompleted(!dayCompleted)}
+            onClick={async () => {
+              const nextVal = !dayCompleted;
+              setDayCompleted(nextVal);
+              await persistDayData({ completed: nextVal });
+            }}
             className={`px-4 py-2 rounded-xl text-xs font-semibold border flex items-center gap-2 shadow-sm transition-all cursor-pointer ${
               dayCompleted
                 ? "bg-emerald-900 border-emerald-900 text-emerald-50"
@@ -213,6 +256,7 @@ export default function DayDetail({ params }: PageProps) {
                 type="text"
                 value={focusArea}
                 onChange={(e) => setFocusArea(e.target.value)}
+                onBlur={() => persistDayData()}
                 className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-base text-stone-800 font-handwriting focus:outline-none focus:ring-1 focus:ring-stone-400"
                 placeholder="Nhập khía cạnh cần tập trung hôm nay..."
               />
@@ -232,6 +276,7 @@ export default function DayDetail({ params }: PageProps) {
               <textarea
                 value={mit}
                 onChange={(e) => setMit(e.target.value)}
+                onBlur={() => persistDayData()}
                 rows={2}
                 className="w-full bg-amber-50/20 border border-amber-200/80 rounded-xl p-3.5 text-lg text-stone-800 font-handwriting focus:outline-none focus:ring-1 focus:ring-amber-300 leading-normal"
                 placeholder="Viết nhiệm vụ quan trọng nhất (MIT) của bạn vào đây..."
@@ -269,6 +314,7 @@ export default function DayDetail({ params }: PageProps) {
                       updated[idx].text = e.target.value;
                       setPriorities(updated);
                     }}
+                    onBlur={() => persistDayData()}
                     className={`w-full bg-transparent border-none text-base focus:outline-none ${
                       task.completed ? "text-stone-400 line-through font-handwriting" : "text-stone-700 font-handwriting"
                     }`}
@@ -308,6 +354,7 @@ export default function DayDetail({ params }: PageProps) {
                       updated[idx].text = e.target.value;
                       setSecondaries(updated);
                     }}
+                    onBlur={() => persistDayData()}
                     className={`w-full bg-transparent border-none text-base focus:outline-none ${
                       task.completed ? "text-stone-400 line-through font-handwriting" : "text-stone-700 font-handwriting"
                     }`}
@@ -326,6 +373,7 @@ export default function DayDetail({ params }: PageProps) {
             <textarea
               value={reflection}
               onChange={(e) => setReflection(e.target.value)}
+              onBlur={() => persistDayData()}
               rows={4}
               className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3.5 text-base text-stone-800 font-handwriting focus:outline-none focus:ring-1 focus:ring-stone-400 leading-relaxed"
               placeholder="Bạn đã làm tốt điều gì hôm nay? Điểm nào cần khắc phục và giải pháp là gì?"
@@ -462,7 +510,10 @@ export default function DayDetail({ params }: PageProps) {
                       <button
                         key={m}
                         type="button"
-                        onClick={() => setMood(m)}
+                        onClick={async () => {
+                          setMood(m);
+                          await persistDayData({ mood: m });
+                        }}
                         className={`py-2 px-1.5 rounded-xl border text-[11px] font-semibold cursor-pointer transition-all ${
                           mood === m
                             ? "bg-stone-900 border-stone-900 text-stone-50 shadow-sm"
@@ -485,7 +536,10 @@ export default function DayDetail({ params }: PageProps) {
                     <button
                       key={e}
                       type="button"
-                      onClick={() => setEnergy(e)}
+                      onClick={async () => {
+                        setEnergy(e);
+                        await persistDayData({ energy: e });
+                      }}
                       className={`py-2 px-1.5 rounded-xl border text-xs font-bold cursor-pointer transition-all ${
                         energy === e
                           ? "bg-stone-900 border-stone-900 text-stone-50 shadow-sm"

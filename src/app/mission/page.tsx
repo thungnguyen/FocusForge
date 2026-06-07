@@ -1,18 +1,39 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Target, HelpCircle, AlertTriangle, ShieldCheck, Plus, Trash2 } from "lucide-react";
 import SectionCard from "@/components/ui/SectionCard";
-import { GOALS_DATA, MONK_RULES } from "@/lib/mock-data";
+import {
+  getMission,
+  updateMission,
+  getGoals,
+  updateGoal,
+  getDailyRules,
+  addDailyRule,
+  deleteDailyRule,
+} from "@/app/actions";
+
+interface DailyRuleItem {
+  id: number;
+  name: string;
+  target: string;
+}
+
+interface GoalAction {
+  id: string;
+  text: string;
+}
+
+interface GoalItem {
+  id: string;
+  title: string;
+  actions: GoalAction[];
+}
 
 export default function Mission() {
-  const [mission, setMission] = useState(
-    "Trở thành một kỹ sư phần mềm kỷ luật và có tay nghề cao bằng cách rèn luyện khả năng tập trung hàng ngày, giảm thiểu sự xao nhãng từ màn hình và tạo dựng thói quen làm việc kiên trì."
-  );
-  const [whyStarted, setWhyStarted] = useState(
-    "Tôi muốn thoát khỏi thói quen lướt mạng xã hội quá nhiều, phục hồi khả năng tập trung cao độ, xây dựng các dự án lập trình thực tế chất lượng cao và có được sự tự tin vào thể chất."
-  );
-  const [weakestArea, setWeakestArea] = useState("Kỷ luật & Sự nghiệp");
+  const [mission, setMission] = useState("");
+  const [whyStarted, setWhyStarted] = useState("");
+  const [weakestArea, setWeakestArea] = useState("");
 
   // Editable card titles
   const [missionTitle, setMissionTitle] = useState("Mission Statement");
@@ -20,27 +41,63 @@ export default function Mission() {
   const [protocolsTitle, setProtocolsTitle] = useState("Daily Protocols");
 
   // Editable rules state
-  const [rules, setRules] = useState(MONK_RULES);
+  const [rules, setRules] = useState<DailyRuleItem[]>([]);
   const [newRuleName, setNewRuleName] = useState("");
   const [newRuleTarget, setNewRuleTarget] = useState("");
 
-  const addRule = (e: React.FormEvent) => {
+  // Editable goals state
+  const [goals, setGoals] = useState<GoalItem[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      const dbMission = await getMission();
+      if (dbMission) {
+        setMission(dbMission.content);
+        setWhyStarted(dbMission.whyStarted);
+        setWeakestArea(dbMission.weakestArea);
+      }
+      const dbGoals = await getGoals();
+      if (dbGoals) {
+        setGoals(
+          dbGoals.map((g) => ({
+            id: g.id,
+            title: g.title,
+            actions: JSON.parse(g.actionsJson),
+          }))
+        );
+      }
+      const dbRules = await getDailyRules();
+      if (dbRules) {
+        setRules(dbRules);
+      }
+    }
+    loadData();
+  }, []);
+
+  const saveMissionData = async () => {
+    await updateMission(mission, whyStarted, weakestArea);
+  };
+
+  const saveGoalData = async (goalId: string) => {
+    const goal = goals.find((g) => g.id === goalId);
+    if (goal) {
+      await updateGoal(goal.id, goal.title, goal.actions);
+    }
+  };
+
+  const handleAddRule = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newRuleName || !newRuleTarget) return;
-    setRules((prev) => [
-      ...prev,
-      { id: prev.length + 1, name: newRuleName, target: newRuleTarget },
-    ]);
+    const dbRule = await addDailyRule(newRuleName, newRuleTarget);
+    setRules((prev) => [...prev, dbRule]);
     setNewRuleName("");
     setNewRuleTarget("");
   };
 
-  const removeRule = (id: number) => {
+  const handleRemoveRule = async (id: number) => {
+    await deleteDailyRule(id);
     setRules((prev) => prev.filter((r) => r.id !== id));
   };
-
-  // Editable goals state
-  const [goals, setGoals] = useState(GOALS_DATA);
 
   const updateGoalTitle = (goalId: string, value: string) => {
     setGoals((prev) =>
@@ -92,6 +149,7 @@ export default function Mission() {
                 <textarea
                   value={mission}
                   onChange={(e) => setMission(e.target.value)}
+                  onBlur={saveMissionData}
                   rows={3}
                   className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-base text-stone-800 font-handwriting focus:outline-none focus:ring-1 focus:ring-stone-400"
                   placeholder="Mục tiêu lớn nhất bạn cam kết đạt được trong 60 ngày tới là gì?"
@@ -105,6 +163,7 @@ export default function Mission() {
                 <textarea
                   value={whyStarted}
                   onChange={(e) => setWhyStarted(e.target.value)}
+                  onBlur={saveMissionData}
                   rows={3}
                   className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-base text-stone-800 font-handwriting focus:outline-none focus:ring-1 focus:ring-stone-400"
                   placeholder="Tại sao bạn buộc phải thay đổi bây giờ? Nỗi đau lớn nhất nếu bạn tiếp tục trì hoãn là gì?"
@@ -119,6 +178,7 @@ export default function Mission() {
                   type="text"
                   value={weakestArea}
                   onChange={(e) => setWeakestArea(e.target.value)}
+                  onBlur={saveMissionData}
                   className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-base text-stone-800 font-handwriting focus:outline-none focus:ring-1 focus:ring-stone-400 font-semibold"
                   placeholder="Khía cạnh yếu nhất bạn cần sửa đổi (Ví dụ: Kỷ luật, Sức khỏe, Sự nghiệp...)"
                 />
@@ -165,6 +225,7 @@ export default function Mission() {
                         type="text"
                         value={goal.title}
                         onChange={(e) => updateGoalTitle(goal.id, e.target.value)}
+                        onBlur={() => saveGoalData(goal.id)}
                         className="w-full font-bold text-stone-800 text-sm border-b border-stone-200/50 pb-1.5 focus:outline-none focus:border-stone-500 mb-3 font-sans"
                         placeholder={`Mục tiêu số ${idx + 1}`}
                       />
@@ -181,6 +242,7 @@ export default function Mission() {
                               onChange={(e) =>
                                 updateActionText(goal.id, action.id, e.target.value)
                               }
+                              onBlur={() => saveGoalData(goal.id)}
                               className="w-full text-xs text-stone-600 bg-stone-50/50 border border-stone-200/40 rounded px-2 py-1 focus:outline-none focus:bg-stone-50 focus:border-stone-400 font-handwriting"
                               placeholder={`Hành động ${actionIdx + 1}`}
                             />
@@ -220,7 +282,7 @@ export default function Mission() {
                       <p className="text-[9px] text-stone-400 font-medium">Mục tiêu: {rule.target}</p>
                     </div>
                     <button
-                      onClick={() => removeRule(rule.id)}
+                      onClick={() => handleRemoveRule(rule.id)}
                       className="p-1 rounded-md text-stone-400 hover:text-rose-600 hover:bg-stone-200/30 transition-colors cursor-pointer"
                     >
                       <Trash2 size={13} />
@@ -230,7 +292,7 @@ export default function Mission() {
               </div>
 
               {/* Add rule form */}
-              <form onSubmit={addRule} className="border-t border-stone-200/60 pt-4 space-y-3 font-sans">
+              <form onSubmit={handleAddRule} className="border-t border-stone-200/60 pt-4 space-y-3 font-sans">
                 <h5 className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">
                   Tạo quy tắc mới
                 </h5>
