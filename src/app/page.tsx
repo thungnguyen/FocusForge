@@ -227,11 +227,41 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Cols: Habits & Tasks */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Habits Check-off */}
+          {/* Daily Protocols from DB (set in /mission) */}
           <SectionCard
             title={protocolsTitle}
             onTitleChange={setProtocolsTitle}
-            subtitle="Đánh dấu hoàn thành các quy tắc không thể thương lượng của bạn trong ngày. (Nhấp tiêu đề để sửa)"
+            subtitle="Các quy tắc cam kết hàng ngày bạn đã thiết lập ở trang Mission. Để chỉnh sửa, vào trang Mission."
+          >
+            {(dailyRules || []).length === 0 ? (
+              <p className="text-xs text-stone-400 font-sans italic">
+                Chưa có quy tắc nào. Hãy thêm quy tắc tại{" "}
+                <a href="/mission" className="underline text-stone-600">trang Mission</a>.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {(dailyRules || []).map((rule: any) => (
+                  <div
+                    key={rule.id}
+                    className="flex items-center gap-3 p-4 rounded-xl border bg-white border-stone-200 text-stone-700"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-stone-400 shrink-0"></span>
+                    <div>
+                      <h4 className="font-semibold text-sm leading-tight font-sans">{rule.name}</h4>
+                      <p className="text-[10px] font-sans text-stone-400">
+                        Mục tiêu: {rule.target}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </SectionCard>
+
+          {/* Habit Tracker (daily check-off) */}
+          <SectionCard
+            title="Habit Tracker"
+            subtitle="Đánh dấu hoàn thành các thói quen theo dõi hàng ngày."
             headerAction={
               <span className="text-xs font-semibold text-stone-500 bg-stone-100 border px-2 py-0.5 rounded-full font-sans">
                 {habitCompletionPercent}% Hoàn thành
@@ -268,6 +298,7 @@ export default function Dashboard() {
               ))}
             </div>
           </SectionCard>
+
 
           {/* Today's 1-3-5 Checklist */}
           <SectionCard
