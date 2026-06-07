@@ -41,7 +41,7 @@ This document outlines a practical, phase-by-phase development plan for building
 
 **Tasks:**
 - Finalize `schema.prisma` with all mapped entities (User, Cycle, DailyLog, etc.).
-- Create and run an initial SQLite migration.
+- Create and run an initial MySQL migration.
 - Write a seed script (`prisma/seed.ts`) to populate a dummy user, an active 60-day cycle, mock daily logs, and fake weekly goals.
 - Configure Prisma Client instance in the `src/lib` directory.
 
@@ -80,7 +80,7 @@ This document outlines a practical, phase-by-phase development plan for building
 - `src/components/dashboard/QuoteCard.tsx`
 
 **Acceptance Criteria:**
-- Dashboard renders data from the SQLite database.
+- Dashboard renders data from the MySQL database.
 - Toggling a habit checkbox updates the database.
 
 **Manual Testing Checklist:**

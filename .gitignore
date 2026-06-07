@@ -48,3 +48,7 @@ next-env.d.ts
 *.sqlite
 *.sqlite3
 
+# Document references
+/docs/reference/
+*.pdf
+
