@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FocusForge — Hướng dẫn Sử dụng & Thiết kế</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #1c1917;
+      --text-muted: #57534e;
+      --border: #e7e5e4;
+      --accent: #78716c;
+      --bg-stone: #f5f5f4;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.7;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+    header {
+      border-bottom: 2px solid var(--text);
+      padding-bottom: 2rem;
+      margin-bottom: 3rem;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin: 0 0 0.5rem 0;
+    }
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-top: 3rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--text);
+      padding-left: 1rem;
+    }
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-top: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    p {
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+    }
+    ul, ol {
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      padding-left: 1.5rem;
+    }
+    li {
+      margin-bottom: 0.5rem;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.75rem;
+      font-weight: bold;
+      background-color: var(--bg-stone);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin-right: 0.5rem;
+    }
+    .info-card {
+      background-color: var(--bg-stone);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .info-card p:last-child {
+      margin-bottom: 0;
+    }
+    footer {
+      margin-top: 5rem;
+      border-top: 1px solid var(--border);
+      padding-top: 2rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    code {
+      font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+      background-color: var(--bg-stone);
+      padding: 0.15rem 0.3rem;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>FocusForge v1.0</h1>
+      <p class="subtitle">Sổ Tay Rèn Luyện Kỷ Luật Monk Mode Cao Cấp</p>
+    </header>
+
+    <main>
+      <section>
+        <h2>1. Giới thiệu & Mục tiêu giải quyết vấn đề</h2>
+        <p>Trong kỷ nguyên số, chúng ta liên tục bị bủa vây bởi các thông báo, mạng xã hội và các hình thức giải trí ngắn hạn. Điều này làm suy giảm nghiêm trọng khả năng tập trung sâu (Deep Work) và kỷ luật tự giác.</p>
+        <p><strong>FocusForge</strong> ra đời nhằm số hóa cuốn sổ tay <strong>Monk Mode 60 ngày</strong> — một phương pháp rèn luyện kỷ luật khắc kỷ giúp bạn lấy lại sự tập trung cao độ để bứt phá giới hạn bản thân.</p>
+        
+        <div class="info-card">
+          <h3>Vấn đề giải quyết:</h3>
+          <ul>
+            <li><strong>Chống sao nhãng:</strong> Giới hạn nghiêm ngặt thời gian sử dụng thiết bị (Screen Time) và mạng xã hội.</li>
+            <li><strong>Hình thành thói quen:</strong> Theo dõi các thói quen cốt lõi (Tập luyện, Đọc sách, Ngoại ngữ, Viết mã) định kỳ liên tục.</li>
+            <li><strong>Quản lý mục tiêu khoa học:</strong> Áp dụng nguyên tắc 1-3-5 để sắp xếp thứ tự ưu tiên công việc hàng ngày rõ ràng.</li>
+            <li><strong>Tối ưu hóa thời gian biểu:</strong> Sử dụng triết lý Kaizen chia nhỏ ngày thành các khung giờ hoạt động hiệu quả.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>2. Triết lý Thiết kế Ứng dụng</h2>
+        <p>FocusForge mang phong cách thẩm mỹ độc đáo gọi là <strong>Brutalist Zen</strong>:</p>
+        <ul>
+          <li><strong>Yếu tố Brutalist:</strong> Đường viền kẻ mảnh rõ ràng, cấu trúc thẻ phẳng góc cạnh, nút bấm chân thực mang lại cảm giác của một cuốn sổ tay giấy Moleskine vật lý.</li>
+          <li><strong>Yếu tố Zen:</strong> Tông màu chủ đạo dịu nhẹ (Warm Sand & Stone) tạo tâm lý thư giãn, loại bỏ hoàn toàn các yếu tố lòe loẹt gây xao nhãng để bạn hoàn toàn tập trung vào việc lập kế hoạch.</li>
+          <li><strong>Thiết kế Bilingual:</strong> Tiêu đề và nút bấm dùng tiếng Anh để giữ bố cục cấu trúc hiện đại; nội dung hướng dẫn, chú giải và tự sự cá nhân dùng tiếng Việt để tăng tính trải nghiệm và chiều sâu tự phản tư.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>3. Hướng dẫn sử dụng chi tiết</h2>
+        
+        <h3>Bước 1: Tuyên bố sứ mệnh (Mission)</h3>
+        <p>Truy cập vào trang <code>/mission</code> để điền triết lý rèn luyện của bạn, xác định khía cạnh cuộc sống cần cải thiện nhất và vạch ra 3 mục tiêu Monk Mode lớn nhất cùng các nguyên tắc không thỏa hiệp.</p>
+
+        <h3>Bước 2: Lập kế hoạch tuần (Weeks)</h3>
+        <p>Mỗi tuần, bạn có một trang riêng để "xả não" (Brain Dump), đề ra các mục tiêu tiêu điểm tuần và viết lời khẳng định tự động viên bản thân vượt qua giới hạn.</p>
+
+        <h3>Bước 3: Thực thi hàng ngày (Daily Planner)</h3>
+        <p>Vào trang chi tiết ngày hiện tại của bạn:</p>
+        <ul>
+          <li>Ghi lại <strong>1 Most Important Task (MIT)</strong> — Việc bắt buộc phải làm để ngày hôm đó thành công.</li>
+          <li>Xác định 3 việc ưu tiên phụ và 5 việc nhỏ phát sinh.</li>
+          <li>Dùng <strong>Đồng hồ Kaizen 24h</strong> để tô màu phân đoạn lịch biểu chi tiết (Ngủ, Làm việc, Sức khỏe, Giải trí).</li>
+          <li>Cuối ngày, hãy ghi nhận trạng thái tâm trạng, năng lượng và viết phản tư cải tiến (Kaizen) cho ngày mai.</li>
+        </ul>
+
+        <h3>Bước 4: Ghi chép chỉ số và thói quen (Habits)</h3>
+        <p>Sử dụng bảng tính <code>/habits</code> để ghi lại các chỉ số hàng ngày như thời gian sử dụng điện thoại, cân nặng, giấc ngủ, lượng nước uống và đánh dấu tích vào 5 thói quen cốt lõi. Hệ thống sẽ tự động tính toán tỷ lệ tuân thủ (%) kỷ luật của bạn.</p>
+
+        <h3>Bước 5: Xem báo cáo phân tích (Analytics)</h3>
+        <p>Trang <code>/analytics</code> cung cấp 6 biểu đồ trực quan hóa dữ liệu lưu trữ từ cơ sở dữ liệu giúp bạn có cái nhìn tổng quan về tiến độ rèn luyện, chuỗi ngày liên tục (streak) và biểu đồ thay đổi cân nặng/giấc ngủ/thói quen qua từng ngày.</p>
+      </section>
+
+      <section>
+        <h2>4. Cấu trúc Công nghệ</h2>
+        <p>FocusForge được xây dựng với hiệu năng tối đa cùng độ bảo toàn dữ liệu tuyệt đối:</p>
+        <ul>
+          <li><strong>Next.js 15 (App Router):</strong> Kiến trúc Server/Client Component tối ưu hóa SEO và tốc độ tải trang cực nhanh.</li>
+          <li><strong>Prisma ORM & MySQL 8.0:</strong> Lưu trữ toàn bộ dữ liệu lịch sử một cách an toàn và nhất quán thông qua cơ chế Docker Container cục bộ.</li>
+          <li><strong>Recharts:</strong> Thành phần vẽ biểu đồ mượt mà, phản hồi tốt trên mọi màn hình.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      <p>FocusForge © 2026. Thiết kế vì sự kỷ luật và tập trung sâu.</p>
+    </footer>
+  </div>
+</body>
+</html>
