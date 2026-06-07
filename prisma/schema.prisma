@@ -2,149 +2,101 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
 }
 
-model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  name      String?
-  cycles    Cycle[]
-  createdAt DateTime  @default(now())
-}
-
-model Cycle {
-  id            String         @id @default(uuid())
-  userId        String
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  startDate     DateTime
-  endDate       DateTime
-  isActive      Boolean        @default(true)
-  
-  // Core Monk Mode Protocol
-  rule1         String         @default("No Alcohol")
-  rule2         String         @default("30m Reading")
-  rule3         String         @default("Exercise")
-  rule4         String         @default("Deep Work")
-  rule5         String         @default("No Sugar")
-  rule6         String         @default("Meditation")
-  
-  // 60-Day Mission Setup
-  reflection60  String?        // Reflection on past 60 days
-  mainMission   String?        // What is most important in next 60 days?
-  wheelScoreId  String?        @unique
-  wheelScore    WheelScore?    @relation(fields: [wheelScoreId], references: [id])
-  
-  // Planning Area
-  weakestArea   String?
-  goals         Goal[]
-  ikigai        Ikigai?
-  
-  // Daily and Weekly logs
-  weeklyReviews WeeklyReview[]
-  dailyLogs     DailyLog[]
-  
-  createdAt     DateTime       @default(now())
-}
-
-model WheelScore {
+model Mission {
   id           String   @id @default(uuid())
-  money        Int      @default(0) // 0 - 10
-  physical     Int      @default(0)
-  relationship Int      @default(0)
-  family       Int      @default(0)
-  friends      Int      @default(0)
-  career       Int      @default(0)
-  work         Int      @default(0)
-  joy          Int      @default(0)
-  spirit       Int      @default(0)
-  education    Int      @default(0)
-  cycle        Cycle?
+  content      String   @db.Text
+  whyStarted   String   @db.Text
+  weakestArea  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Goal {
-  id        String   @id @default(uuid())
-  cycleId   String
-  cycle     Cycle    @relation(fields: [cycleId], references: [id], onDelete: Cascade)
-  title     String
-  order     Int      // 1, 2, 3
-  actions   Action[]
+  id          String   @id @default(uuid())
+  title       String
+  order       Int
+  actionsJson String   @db.Text // Serialized JSON of actions: { id: string, text: string }[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
-model Action {
-  id        String   @id @default(uuid())
-  goalId    String
-  goal      Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
-  content   String
-  order     Int      // 1, 2, 3
+model DailyRule {
+  id        Int      @id @default(autoincrement())
+  name      String
+  target    String
+  createdAt DateTime @default(now())
+}
+
+model Week {
+  number      Int      @id // Week 1 to 9
+  dateRange   String
+  brainDump   String   @db.Text
+  goalsJson   String   @db.Text // Serialized array of strings: string[]
+  status      String   // "Completed" | "In Progress" | "Upcoming"
+  progress    Int      @default(0)
+  affirmation String?  @db.Text
+  reflection  String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Day {
+  number            Int      @id // Day 1 to 60
+  weekNumber        Int
+  date              String
+  status            String   // "Completed" | "In Progress" | "Upcoming"
+  focusArea         String
+  mit               String
+  prioritiesJson    String   @db.Text // Serialized TaskItem[]
+  secondariesJson   String   @db.Text // Serialized TaskItem[]
+  mood              String
+  energy            String   // "High" | "Medium" | "Low"
+  kaizenReflection  String   @db.Text
+  completed         Boolean  @default(false)
+  timeBlocksJson    String?  @db.Text // Serialized Kaizen slots
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model HabitLog {
+  dayNumber     Int      @id // Day 1 to 60
+  screenTime    Float    // hrs
+  weight        Float    // kg
+  sleepTime     Float    // hrs
+  wakeUpTime    String
+  waterIntake   Float    // L
+  workout       Boolean  @default(false)
+  reading       Boolean  @default(false)
+  english       Boolean  @default(false)
+  coding        Boolean  @default(false)
+  noSocialMedia Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model LifeScore {
+  name         String   @id // e.g. Money, Health, Family, etc.
+  currentScore Int      @default(0)
+  targetScore  Int      @default(0)
+  note         String   @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Ikigai {
-  id            String   @id @default(uuid())
-  cycleId       String   @unique
-  cycle         Cycle    @relation(fields: [cycleId], references: [id], onDelete: Cascade)
-  whatILove     String?  // Rich text or JSON array
-  whatImGoodAt  String?
-  whatWorldNeeds String?
-  whatIPaidFor  String?
+  id             String   @id @default(uuid())
+  loveJson       String   @db.Text // Serialized string[]
+  goodAtJson     String   @db.Text // Serialized string[]
+  worldNeedsJson String   @db.Text // Serialized string[]
+  paidForJson    String   @db.Text // Serialized string[]
+  summary        String   @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
-
-model WeeklyReview {
-  id          String   @id @default(uuid())
-  cycleId     String
-  cycle       Cycle    @relation(fields: [cycleId], references: [id], onDelete: Cascade)
-  weekNumber  Int      // 1 to 9
-  brainDump   String?  // Rich text notes
-  goal1       String?
-  goal2       String?
-  goal3       String?
-  goal4       String?
-  affirmation String?  // Weekly affirmation
-  createdAt   DateTime @default(now())
-}
-
-model DailyLog {
-  id          String    @id @default(uuid())
-  cycleId     String
-  cycle       Cycle     @relation(fields: [cycleId], references: [id], onDelete: Cascade)
-  date        DateTime
-  
-  // Habit Checklist
-  qt1Completed Boolean   @default(false)
-  qt2Completed Boolean   @default(false)
-  qt3Completed Boolean   @default(false)
-  qt4Completed Boolean   @default(false)
-  qt5Completed Boolean   @default(false)
-  qt6Completed Boolean   @default(false)
-
-  // Metrics Tracker
-  screenTime  Float?    // in hours
-  weight      Float?    // in kg/lbs
-  sleepHours  Float?    
-  wakeTime    String?   // HH:MM format
-  waterIntake Float?    // in liters
-  custom1     String?
-  custom2     String?
-  
-  // 1-3-5 Task list
-  tasks       Task[]
-  
-  // Kaizen Time Blocking (serialized time slots JSON, e.g. [{"hour": 8, "activity": "Deep Work", "category": "WORK"}])
-  timeBlocks  String?   @default("[]") 
-}
-
-model Task {
-  id          String   @id @default(uuid())
-  dailyLogId  String
-  dailyLog    DailyLog @relation(fields: [dailyLogId], references: [id], onDelete: Cascade)
-  type        String   // "MIT" (1), "PRIORITY" (3), "MINOR" (5)
-  content     String
-  isCompleted Boolean  @default(false)
-  order       Int
-}
-
